@@ -36,10 +36,10 @@ app.post('/blog-entries', async (request, response) => {
 
     try {
         const conn = await pool.getConnection();
-        /*const result = await conn.query("INSERT INTO blog_entries (title, content, author, created_at) VALUES (?, ?, ?, NOW())", [title, content, author]);
+        const result = await conn.query("INSERT INTO blog_entries (title, content, author, created_at) VALUES (?, ?, ?, NOW())", [title, content, author]);
         conn.release();
 
-       response.status(201).json({ id: result.insertId, title, content, author, created_at: new Date().toISOString() });*/
+       response.status(201).json({ id: result.insertId, title, content, author, created_at: new Date().toISOString() });
     } catch (error) {
         console.error("Error inserting blog entry:", error);
         response.status(500).json({ error: "Internal server error" });
