@@ -3,14 +3,14 @@ const bodyParser = require('body-parser');
 const mariadb = require('mariadb');
 const dotenv = require('dotenv');
 
-dotenv.config(); // Load environment variables from .env file
+dotenv.config(); 
 
 const app = express();
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
-// Create a pool of database connections
+
 const pool = mariadb.createPool({
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
@@ -25,28 +25,30 @@ app.listen(PORT, () => {
 
 app.use(bodyParser.json());
 
-// Create a Blog Entry
+
 app.post('/blog-entries', async (request, response) => {
-    const { title, content, author } = request.body;
+        const { title, content, author } = request.body;
 
-    // Validation
-    if (!title || !content || !author) {
-        return response.status(400).json({ error: "Please provide title, content, and author for the blog entry." });
-    }
+     
+        if (!title || !content || !author) {
+            return response.status(400).json({ error: "Please provide title, content, and author for the blog entry." });
+        }
 
-    try {
-        const conn = await pool.getConnection();
-        const result = await conn.query("INSERT INTO blog_entries (title, content, author, created_at) VALUES (?, ?, ?, NOW())", [title, content, author]);
-        conn.release();
+        try {
+            const conn = await pool.getConnection();
+            const result = await conn.query("INSERT INTO blog_entries ( title, content, author, created_at) VALUES (?, ?, ?, NOW())", [title, content, author]);
+            conn.release();
 
-       response.status(201).json({ id: result.insertId, title, content, author, created_at: new Date().toISOString() });
-    } catch (error) {
-        console.error("Error inserting blog entry:", error);
-        response.status(500).json({ error: "Internal server error" });
-    }
-});
+            const insertedId = result.insertId.toString(); 
 
-// Retrieve All Blog Entries
+            response.status(201).json({ id: insertedId, title, content, author, created_at: new Date().toISOString() });
+        } catch (error) {
+            console.error("Error inserting blog entry:", error);
+            response.status(500).json({ error: "Internal server error" });
+        }
+    });
+
+
 app.get('/blog-entries', async (request, response) => {
     try {
         const conn = await pool.getConnection();
@@ -59,7 +61,7 @@ app.get('/blog-entries', async (request, response) => {
     }
 });
 
-// Retrieve a Blog Entry
+
 app.get('/blog-entries/:id', async (request, response) => {
     const { id } = request.params;
 
@@ -79,7 +81,7 @@ app.get('/blog-entries/:id', async (request, response) => {
     }
 });
 
-// Update a Blog Entry
+
 app.put('/blog-entries/:id', async (request, response) => {
     const { id } = request.params;
     const { title, content, author } = request.body;
@@ -100,7 +102,7 @@ app.put('/blog-entries/:id', async (request, response) => {
     }
 });
 
-// Delete a Blog Entry
+
 app.delete('/blog-entries/:id', async (request, response) => {
     const { id } = request.params;
 
